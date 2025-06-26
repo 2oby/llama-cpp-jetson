@@ -3,18 +3,15 @@ set -e
 
 echo "🔧 [1/7] Checking for 32GB swap file at /swapfile..."
 
-if ! swapon --show | grep -q "/swapfile"; then
-    echo "⚠️  No swapfile active — creating 32GB swap at /swapfile..."
-    sudo swapoff -a || true
-    sudo fallocate -l 32G /swapfile
-    sudo chmod 600 /swapfile
-    sudo mkswap /swapfile
-    sudo swapon /swapfile
-    grep -q "/swapfile" /etc/fstab || echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
-    sudo sysctl vm.swappiness=60
-else
-    echo "✅ Swapfile already exists and is active."
-fi
+# Always create 32GB swap for memory-intensive builds
+echo "⚠️  Creating 32GB swap file for memory-intensive CUDA build..."
+sudo swapoff -a || true
+sudo fallocate -l 32G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+grep -q "/swapfile" /etc/fstab || echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+sudo sysctl vm.swappiness=60
 
 echo "📊 Current swap status:"
 swapon --show
@@ -53,7 +50,7 @@ cmake .. \
   -DLLAMA_CURL=OFF  # Disable CURL to bypass missing libcurl4-openssl-dev
 
 echo "⚙️ [7/7] Building all targets with CUDA (GGML_CUDA) and silencing array bounds warnings..."
-make all GGML_CUDA=1 -j1 CFLAGS="-Wno-array-bounds"
+make all GGML_CUDA=1 -j1 CFLAGS="-Wno-array-bounds -O1" CXXFLAGS="-O1" CUDAFLAGS="-O1"
 
 echo "📂 Copying binaries to output folder..."
 cd ../..

@@ -33,6 +33,11 @@ export MAKEFLAGS="-j1"
 export GOMAXPROCS=1
 export LDFLAGS="-Wl,--no-keep-memory -Wl,--reduce-memory-overheads"
 
+echo "🔧 [4.5/7] Setting up CUDA environment..."
+export PATH=/usr/local/cuda-12.6/bin:$PATH
+export CUDA_HOME=/usr/local/cuda-12.6
+export LD_LIBRARY_PATH=/usr/local/cuda-12.6/lib64:$LD_LIBRARY_PATH
+
 echo "📥 [5/7] Cloning llama.cpp..."
 rm -rf llama.cpp
 git clone https://github.com/ggerganov/llama.cpp

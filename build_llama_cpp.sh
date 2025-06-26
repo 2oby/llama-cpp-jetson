@@ -37,17 +37,18 @@ echo "📥 [5/7] Cloning llama.cpp..."
 rm -rf llama.cpp
 git clone https://github.com/ggerganov/llama.cpp
 cd llama.cpp
-git checkout b5306  # Latest stable release
+git checkout master  # Latest development version with all recent fixes
 
 echo "🛠️ [6/7] Configuring CMake for CUDA compute capability 8.7..."
 mkdir -p build && cd build
 cmake .. \
   -DCMAKE_CUDA_ARCHITECTURES=87 \
   -DCMAKE_BUILD_TYPE=Release \
+  -DGGML_CUDA=ON \
   -DLLAMA_CURL=OFF  # Disable CURL to bypass missing libcurl4-openssl-dev
 
-echo "⚙️ [7/7] Building all targets with CUDA (cuBLAS) and silencing array bounds warnings..."
-make all LLAMA_CUBLAS=1 -j1 CFLAGS="-Wno-array-bounds"
+echo "⚙️ [7/7] Building all targets with CUDA (GGML_CUDA) and silencing array bounds warnings..."
+make all GGML_CUDA=1 -j1 CFLAGS="-Wno-array-bounds"
 
 echo "📂 Copying binaries to output folder..."
 cd ../..
